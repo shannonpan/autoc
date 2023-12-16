@@ -3,35 +3,31 @@ name: Auto commit
 on:
   push:
     branches:
-      - main  # 修改为正确的默认分支
+      - master
   schedule:
-    - cron: "1 0 * * *"
-  workflow_dispatch:
-
+  - cron: "1 0 * * *"
 jobs:
   auto_commit:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3      
         with:
-          persist-credentials: false
-          fetch-depth: 0
-
+         persist-credentials: false
+         fetch-depth: 0
       - name: Set date variable
-        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-
+        run: |
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       - name: Write into CURRENT_DATE
-        run: echo $date > CURRENT_DATE
-
-      - name: Configure Git
         run: |
-          git config --global user.email "${{ secrets.EMAIL }}"
-          git config --global user.name "ShannonPie"
-
-      - name: Commit and push
-        run: |
+          echo $date > CURRENT_DATE
+      - name: Commit
+        run: |          
+          git config --local user.email "${{ secrets.EMAIL }}"
+          git config --local user.name "Ostabo"
           git add -A
           git commit -m "commit of $date"
-          git push origin main  # 将分支修改为正确的默认分支
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          directory: "."
+          github_token: ${{ secrets.GITHUB_TOKEN }}
